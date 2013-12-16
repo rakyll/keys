@@ -30,6 +30,8 @@ var (
 	// An error to return if there are no password matches
 	// for the specified service and user name.
 	ErrNotFound = errors.New("keyring: no password found for the specified item")
+	// An unknown error during any operation
+	ErrUnknown = errors.New("keyring: unknown error")
 )
 
 type Keyring interface {
