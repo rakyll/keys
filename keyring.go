@@ -17,6 +17,14 @@ import (
 	"errors"
 )
 
+var (
+	// A list of all registered Keyring backends.
+	registered map[string]Keyring
+
+	ErrNotAvailable = errors.New("keyring: no available keyring backends available")
+	ErrNotFound     = errors.New("keyring: no password found for the specified item")
+)
+
 type Keyring interface {
 	// Returns if keyring backend is available on the
 	// current platform where program is running.
@@ -32,11 +40,6 @@ type Keyring interface {
 	Delete(service, username string) error
 }
 
-var (
-	// A list of all registered Keyring backends.
-	registered map[string]Keyring
-)
-
 // Returns the first keyring backend available on the platform.
 // If no keyring is available, returns an error.
 func New() (Keyring, error) {
@@ -45,7 +48,7 @@ func New() (Keyring, error) {
 			return keyring, nil
 		}
 	}
-	return nil, errors.New("no available keyring found")
+	return nil, ErrNotAvailable
 }
 
 // Registers a Keyring backend.
