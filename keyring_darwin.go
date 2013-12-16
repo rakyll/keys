@@ -14,62 +14,58 @@
 package keyring
 
 import (
-	"errors"
 	"fmt"
 	"os/exec"
+	"strings"
 )
 
 const (
 	execPathKeychain = "/usr/bin/security"
 )
 
-type Keychain struct{}
+type MacOSXKeychain struct{}
 
-func (*Keychain) IsAvailable() bool {
+func (*MacOSXKeychain) IsAvailable() bool {
 	return exec.Command(execPathKeychain).Run() != exec.ErrNotFound
 }
 
-func (k *Keychain) Get(service, username string) (string, error) {
+func (k *MacOSXKeychain) Get(service, username string) (string, error) {
 	out, err := exec.Command(
 		execPathKeychain,
 		"find-generic-password",
-		"-g",
 		"-s", service,
-		"-a", username).Output()
-	return k.handleGetOut(out, err)
+		"-wa", username).CombinedOutput()
+	if err != nil {
+		if strings.Contains(fmt.Sprintf("%s", out), "could not be found") {
+			err = ErrNotFound
+		}
+		return "", err
+	}
+	return strings.TrimSpace(fmt.Sprintf("%s", out)), nil
 }
 
-func (k *Keychain) Set(service, username, password string) error {
-	existing, _ := k.Get(service, username)
-	if existing != "" {
-		if err := k.Delete(service, username); err != nil {
-			return errors.New("password exists for service, username, can't delete")
-		}
-	}
+func (k *MacOSXKeychain) Set(service, username, password string) error {
 	return exec.Command(
 		execPathKeychain,
 		"add-generic-password",
+		"-U", //update if exists
 		"-s", service,
 		"-a", username,
 		"-w", password).Run()
 }
 
-func (k *Keychain) Delete(service, username string) error {
-	return exec.Command(
+func (k *MacOSXKeychain) Delete(service, username string) error {
+	out, err := exec.Command(
 		execPathKeychain,
 		"delete-generic-password",
 		"-s", service,
-		"-a", username).Run()
-}
-
-func (k *Keychain) handleGetOut(out []byte, err error) (string, error) {
-	if err != nil {
-		// handle cases where no record exists
-		return "", err
+		"-a", username).CombinedOutput()
+	if strings.Contains(fmt.Sprintf("%s", out), "could not be found") {
+		err = ErrNotFound
 	}
-	return fmt.Sprintf("%s", out), nil
+	return err
 }
 
 func init() {
-	Register("macosx-keyring", &Keychain{})
+	Register("macosx-keyring", &MacOSXKeychain{})
 }
