@@ -11,6 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+// Package keyring provides interfaces to talk to keyring service
+// that is available on the current platform.
 package keyring
 
 import (
@@ -18,11 +21,15 @@ import (
 )
 
 var (
-	// A list of all registered Keyring backends.
+	// A list of all registered Keyring clients.
 	registered map[string]Keyring
 
-	ErrNotAvailable = errors.New("keyring: no available keyring backends available")
-	ErrNotFound     = errors.New("keyring: no password found for the specified item")
+	// An error to return if there are no available keyring
+	// service client for the current platform.
+	ErrNotAvailable = errors.New("keyring: no available keyring client available")
+	// An error to return if there are no password matches
+	// for the specified service and user name.
+	ErrNotFound = errors.New("keyring: no password found for the specified item")
 )
 
 type Keyring interface {
@@ -40,7 +47,7 @@ type Keyring interface {
 	Delete(service, username string) error
 }
 
-// Returns the first keyring backend available on the platform.
+// Returns the first Keyring client available on the platform.
 // If no keyring is available, returns an error.
 func New() (Keyring, error) {
 	for _, keyring := range registered {
@@ -51,7 +58,7 @@ func New() (Keyring, error) {
 	return nil, ErrNotAvailable
 }
 
-// Registers a Keyring backend.
+// Registers a Keyring client.
 func Register(key string, keyring Keyring) {
 	if registered == nil {
 		registered = make(map[string]Keyring)
