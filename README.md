@@ -38,6 +38,6 @@ Keys is a cross-platform keyring library for golang, utilizing gnome-kerying onL
 
 ### Testing
 ```bash
-go get github.com/rakyll/keys
-go test $GOPATH/src/github.com/rakyll/keys
+~ # go get github.com/rakyll/keys
+~ # go test $GOPATH/src/github.com/rakyll/keys
 ```
