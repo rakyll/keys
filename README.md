@@ -6,7 +6,7 @@ Keys is a cross-platform keyring library for golang, utilizing gnome-kerying onL
 - libglib2.0-dev (gnome-keyring support)
 
 ### Example Usage
-```golang
+```go
 	// using the New() function returns a struct with Get(), Set(), and Delete() as methods.
 	kr, err := keyring.New()
 	if err != nil {
@@ -38,6 +38,6 @@ Keys is a cross-platform keyring library for golang, utilizing gnome-kerying onL
 
 ### Testing
 ```bash
-go get github.com/rakyll/keys
-go test $GOPATH/src/github.com/rakyll/keys
+~ # go get github.com/rakyll/keys
+~ # go test $GOPATH/src/github.com/rakyll/keys
 ```
