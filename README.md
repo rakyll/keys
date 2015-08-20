@@ -2,31 +2,42 @@
 
 Keys is a cross-platform keyring library for golang, utilizing gnome-kerying onLinux or the Mac OSX Keychain to Get, Set, or Delete passwords.
 
-## Dependencies
+### Dependencies
 - libglib2.0-dev (gnome-keyring support)
 
-## Example Usage
+### Example Usage
 ```golang
-package main
+	// using the New() function returns a struct with Get(), Set(), and Delete() as methods.
+	kr, err := keyring.New()
+	if err != nil {
+		fmt.Println(err)
+	}
 
-import (
-"github.com/rakyll/keys"
-"fmt"
-)
+	// Set() takes (service, username, password) as arguments
+	err = kr.Set("myservice", "larry", "password1")
+	if err != nil {
+		fmt.Println(err)
+	}
+	if kr.IsAvailable() != true {
+		fmt.Println("Keyring not available.")
+		os.Exit(1)
+	}
+	// Get() and Delete() takes (service, username).
+	password, err := kr.Get("myservice", "larry")
+	if err != nil {
+		fmt.Println(err)
+	}
 
-func main() {
-    kr, err := keyring.New()
-    if err != nil {
-        fmt.Println(err
-    }
+	fmt.Printf("larry's password for myservice is '%s'.\n", password)
 
-    err := keyring.Set("mysupercoolservice", "larry", "password1")
-    if err != nil 
-    password, err := kr.Get("supernova", "global:LDAP")
-    if err != nil {
-        fmt.Println(err)
-    }
-    fmt.Println(password)
-}
+	err = kr.Delete("myservice", "larry")
+	if err != nil {
+		fmt.Println(err)
+	}
 ```
 
+### Testing
+```bash
+go get github.com/rakyll/keys
+go test $GOPATH/src/github.com/rakyll/keys
+```
