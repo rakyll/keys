@@ -22,6 +22,7 @@ package keyring
 import "C"
 
 import (
+	"fmt"
 	"unsafe"
 )
 
@@ -52,15 +53,16 @@ func (k *GnomeKeyring) Get(service, username string) (string, error) {
 // Sets a password for the specified service and username.
 func (k *GnomeKeyring) Set(service, username, password string) error {
 	s := C.CString(service)
+	d := C.CString(fmt.Sprintf("Password for '%s' on '%s'", username, service))
 	u := C.CString(username)
 	p := C.CString(password)
-
 	defer func() {
 		C.free(unsafe.Pointer(s))
+		C.free(unsafe.Pointer(d))
 		C.free(unsafe.Pointer(u))
 		C.free(unsafe.Pointer(p))
 	}()
-	return k.convertResultToErr(C.gnome_keyring_set(s, u, p))
+	return k.convertResultToErr(C.gnome_keyring_set(s, d, u, p))
 }
 
 // Deletes the password belongs to the specified service and username

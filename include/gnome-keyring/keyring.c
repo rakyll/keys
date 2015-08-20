@@ -50,12 +50,13 @@ gnome_keyring_get(const char *service,
 
 GnomeKeyringResult
 gnome_keyring_set(const char *service,
+                  const char *description,
                   const char *username,
                   const char *password) {
   return gnome_keyring_store_password_sync(
       &GNOME_KEYRING_DEFAULT_SCHEMA,
       NULL,
-      NULL,
+      description,
       password,
       "service",  service,
       "username", username,
